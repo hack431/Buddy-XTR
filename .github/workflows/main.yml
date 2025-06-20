@@ -1,0 +1,34 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const axios = require('axios');
+const app = express();
+
+app.use(bodyParser.json());
+
+// Sample workflow logic
+app.post('/webhook', async (req, res) => {
+    const message = req.body?.messages?.[0]?.text?.body;
+    const from = req.body?.messages?.[0]?.from;
+
+    let response;
+
+    if (message.toLowerCase() === 'hi') {
+        response = "Hello! What would you like to do?\n1. Check balance\n2. Speak to agent";
+    } else if (message === '1') {
+        response = "Your balance is $500.";
+    } else if (message === '2') {
+        response = "Connecting you to an agent...";
+    } else {
+        response = "I didn't understand. Please type 'Hi' to start.";
+    }
+
+    // Send response via WhatsApp API (example using Twilio)
+    await axios.post('https://api.twilio.com/your-endpoint', {
+        to: from,
+        body: response
+    });
+
+    res.sendStatus(200);
+});
+
+app.listen(3000, () => console.log('Bot running on port 3000'));
